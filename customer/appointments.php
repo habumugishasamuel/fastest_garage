@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/Database.php';
 require_once '../includes/header.php';
 
 // Get database connection

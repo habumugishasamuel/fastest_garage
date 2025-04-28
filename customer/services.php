@@ -1,14 +1,25 @@
 <?php
-require_once '../includes/header.php';
+require_once '../includes/Database.php';
+// Add error handling for missing includes
+try {
+    require_once '../includes/header.php';
+} catch (Exception $e) {
+    die('<div class="alert alert-danger">Header include failed: ' . htmlspecialchars($e->getMessage()) . '</div>');
+}
 
 // Get database connection
 $database = new Database();
 $db = $database->getConnection();
+if (!$db) {
+    die('<div class="alert alert-danger">Database connection failed.</div>');
+}
 
 // Get all services
 $query = "SELECT * FROM services ORDER BY name ASC";
 $stmt = $db->prepare($query);
-$stmt->execute();
+if (!$stmt->execute()) {
+    die('<div class="alert alert-danger">Failed to fetch services.</div>');
+}
 $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Default service images mapping
@@ -37,8 +48,9 @@ $service_images = [
                             <?php 
                             $image_name = $service_images[$service['name']] ?? 'default-service.jpg';
                             $image_path = "../img/services/{$image_name}";
+                            $absolute_image_path = $_SERVER['DOCUMENT_ROOT'] . "/img/services/{$image_name}";
                             ?>
-                            <?php if (file_exists($image_path)): ?>
+                            <?php if (file_exists($absolute_image_path)): ?>
                                 <img src="<?php echo $image_path; ?>" 
                                      class="card-img-top" alt="<?php echo htmlspecialchars($service['name']); ?>"
                                      style="height: 200px; object-fit: cover;">
@@ -69,4 +81,10 @@ $service_images = [
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?> 
+<?php
+// Add error handling for missing footer include
+try {
+    require_once '../includes/footer.php';
+} catch (Exception $e) {
+    echo '<div class="alert alert-danger">Footer include failed: ' . htmlspecialchars($e->getMessage()) . '</div>';
+} 
