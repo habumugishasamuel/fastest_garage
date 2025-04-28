@@ -98,6 +98,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page == 'services.php' ? 'active' : ''; ?>" href="services.php">
+                                    <i class="bi bi-tools"></i> Our Services
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link <?php echo $current_page == 'appointments.php' ? 'active' : ''; ?>" href="appointments.php">
                                     <i class="bi bi-calendar"></i> Appointments
                                 </a>

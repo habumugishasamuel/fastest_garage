@@ -1,16 +1,35 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'config/database.php';
 require_once 'includes/auth.php';
+
+// If already logged in, redirect to index
+if (isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    if (login($username, $password)) {
-        header("Location: index.php");
-        exit();
+    if (empty($username) || empty($password)) {
+        $error = "Please enter both username and password";
     } else {
-        $error = "Invalid username or password";
+        try {
+            if (login($username, $password)) {
+                header("Location: index.php");
+                exit();
+            } else {
+                $error = "Invalid username or password";
+            }
+        } catch (Exception $e) {
+            $error = "Login error: " . $e->getMessage();
+        }
     }
 }
 ?>
@@ -36,16 +55,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p class="text-muted">Please login to your account</p>
                         </div>
                         
-                        <?php if (isset($error)): ?>
-                            <div class="alert alert-danger"><?php echo $error; ?></div>
+                        <?php if ($error): ?>
+                            <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                         <?php endif; ?>
                         
-                        <form method="POST" class="needs-validation" novalidate>
+                        <form method="POST" action="login.php" class="needs-validation" novalidate>
                             <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
+                                <label for="username" class="form-label">Username or Email</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
                                 </div>
                             </div>
                             

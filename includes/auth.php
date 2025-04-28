@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/database.php';
 
 class Auth {
@@ -12,9 +14,10 @@ class Auth {
     }
 
     public function login($email, $password) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email LIMIT 1";
+        $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email OR username = :username LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":email", $email);
+        $stmt->bindParam(":username", $email); // Using email parameter for username too
         $stmt->execute();
 
         if($stmt->rowCount() > 0) {
@@ -22,7 +25,9 @@ class Auth {
             if(password_verify($password, $row['password'])) {
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['role'] = $row['role'];
-                $_SESSION['name'] = $row['name'];
+                $_SESSION['name'] = $row['name'] ?? '';
+                $_SESSION['username'] = $row['username'] ?? '';
+                $_SESSION['email'] = $row['email'] ?? '';
                 return true;
             }
         }
@@ -89,13 +94,16 @@ function login($username, $password) {
     $db = new Database();
     $conn = $db->getConnection();
 
-    $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ?");
-    $stmt->execute([$username]);
+    // Try to find user by username or email
+    $stmt = $conn->prepare("SELECT id, username, email, password, role, name FROM users WHERE username = ? OR email = ?");
+    $stmt->execute([$username, $username]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['name'] = $user['name'];
         $_SESSION['role'] = $user['role'];
         return true;
     }
