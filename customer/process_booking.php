@@ -1,5 +1,6 @@
 <?php
-require_once '../includes/Database.php';
+require_once __DIR__ . '/includes/Database.php';
+require_once __DIR__ . '/includes/header.php';
 session_start();
 
 // Check if user is logged in
@@ -10,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Get database connection
 $database = new Database();
-$db = $database->getConnection();
+$db = $database->connect();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_and_view'])) {
     $vehicle_id = $_POST['vehicle_id'] ?? '';
