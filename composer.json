@@ -1,0 +1,13 @@
+{
+  "name": "your-vendor/fastest-garage",
+  "description": "A PHP project for Fastest Garage.",
+  "type": "project",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "App\\": "customer/"
+    }
+  },
+  "minimum-stability": "stable",
+  "license": "MIT"
+} 
